@@ -20,6 +20,8 @@ class Date
         unsigned int getMonth() const;
         unsigned int getYear() const;
 
+        void setDate(const int day, const int month, const int year);
+
         bool operator == (const Date& other) const;
         bool operator < (const Date& other) const;
 
