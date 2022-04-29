@@ -14,8 +14,21 @@ class Product
         Date dateOfEntry;
         char* maker;
         size_t quantity;
-        unsigned int location[3];
+
+        // location:
+        unsigned int section;
+        unsigned int shelf;
+        unsigned int number;
+
         char* comment;
+
+        void setName(const char* name);
+        void setExpiryDate(const Date& expiryDate);
+        void setDateOfEntry(const Date& dateOfEntry);
+        void setMaker(const char* maker);
+        void setQuantity(const int quantity);
+        
+        void setComment(const char* comment);
     
     public:
         Product();
@@ -26,13 +39,17 @@ class Product
 
         Product& operator = (const Product& other);
 
-        void setName(const char* name);
-        void setExpiryDate(const Date& expiryDate);
-        void setDateOfEntry(const Date& dateOfEntry);
-        void setMaker(const char* maker);
-        void setQuantity(const int quantity);
-        void setLocation(const int section, const int shelf, const int number);
-        void setComment(const char* comment);
+        bool operator == (const Product& other) const;
+
+        const char* getName() const;
+        Date getExpiryDate() const;
+        size_t getQuantity() const;
+
+        void setSection(const int section);
+        void setShelf(const int shelf);
+        void setNumber(const int number);
+
+        void print() const;
 
         friend std::ostream& operator << (std::ostream& out, const Product& p);
         friend std::istream& operator >> (std::istream& in, Product& p);

@@ -13,7 +13,9 @@ Product::Product()
     this->setName("-");
     this->setMaker("-");
     this->setQuantity(0);
-    this->setLocation(0, 0, 0);
+    this->setSection(0);
+    this->setShelf(0);
+    this->setNumber(0);
     this->setComment("-");
 }
 
@@ -24,7 +26,9 @@ Product::Product(const char* name, const Date& expiryDate, const Date& dateOfEnt
     this->setName(name);
     this->setMaker(maker);
     this->setQuantity(quantity);
-    this->setLocation(section, shelf, number);
+    this->setSection(section);
+    this->setShelf(shelf);
+    this->setNumber(number);
     this->setComment(comment);
 }
 
@@ -34,7 +38,9 @@ Product::Product(const Product& other)
     this->setName(other.name);
     this->setMaker(other.maker);
     this->setQuantity(other.quantity);
-    this->setLocation(other.location[0], other.location[1], other.location[2]);
+    this->setSection(other.section);
+    this->setShelf(other.shelf);
+    this->setNumber(other.number);
     this->setComment(other.comment);
 }
 
@@ -59,7 +65,9 @@ Product& Product::operator = (const Product& other)
         this->setDateOfEntry(other.dateOfEntry);
         this->setMaker(other.maker);
         this->setQuantity(other.quantity);
-        this->setLocation(other.location[0], other.location[1], other.location[2]);
+        this->setSection(other.section);
+        this->setShelf(other.shelf);
+        this->setNumber(other.number);
         this->setComment(other.comment);
     }
 
@@ -114,18 +122,6 @@ void Product::setQuantity(const int quantity)
     this->quantity = quantity;
 }
 
-void Product::setLocation(const int section, const int shelf, const int number)
-{
-    assert(section >= 0);
-    this->location[0] = section;
-
-    assert(shelf >= 0);
-    this->location[1] = shelf;
-
-    assert(number >= 0);
-    this->location[2] = number;
-}
-
 void Product::setComment(const char* comment)
 {
     if(!comment || strlen(comment) > MAX_COMMENT_LEN) comment = "";
@@ -142,12 +138,59 @@ void Product::setComment(const char* comment)
     strcpy(this->comment, comment);
 }
 
+bool Product::operator == (const Product& other) const
+{
+    return strcmp(this->name, other.name) == 0 && strcmp(this->maker, other.maker) == 0;
+}
+
+const char* Product::getName() const
+{
+    return this->name;
+}
+
+Date Product::getExpiryDate() const
+{
+    return this->expiryDate;
+}
+
+size_t Product::getQuantity() const
+{
+    return this->quantity;
+}
+
+void Product::setSection(const int section)
+{
+    assert(section >= 0);
+    this->section = section;
+}
+
+void Product::setShelf(const int shelf)
+{
+    assert(shelf >= 0);
+    this->shelf = shelf;
+}
+
+void Product::setNumber(const int number)
+{
+    assert(number >= 0);
+    this->number = number;
+}
+
+void Product::print() const
+{
+    std::cout << "name: "            << this->name        << ", expiry date: " << this->expiryDate 
+              << ", date Of Entry: " << this->dateOfEntry << ", maker: "       << this->maker
+              << ", quantity: "      << this->quantity    << ", section: "     << this->section
+              << ", shelf: "         << this->shelf       << ", number: "      << this->number 
+              << "comment: "         << this->comment     << std::endl;
+}
+
 std::ostream& operator << (std::ostream& out, const Product& p)
 {
-    out << p.name        << "\n" << p.expiryDate    << "\n" << p.dateOfEntry << "\n" 
-        << p.maker       << "\n" << p.quantity      << "\n" 
-        << p.location[0] << " "  << p.location[1]   << " "  << p.location[2] << "\n"
-        << p.comment     << "\n";
+    out << p.name        << "| " << p.expiryDate    << " " << p.dateOfEntry << " " 
+        << p.maker       << "| " << p.quantity      << " " 
+        << p.section     << " "  << p.shelf         << " "  << p.number << " "
+        << p.comment     << "|\n";
 
     return out;
 }
@@ -156,24 +199,24 @@ std::istream& operator >> (std::istream& in, Product& p)
 {
     char buffer[MAX_COMMENT_LEN];
 
-    in.getline(buffer, MAX_NAME_LEN);
+    in.getline(buffer, MAX_NAME_LEN, '|');
     strncpy(p.name, buffer, strlen(buffer));
     p.name[strlen(buffer)] = '\0';
 
     in >> p.expiryDate >> p.dateOfEntry;
 
-    in.get();
+    //in.get();
 
-    in.getline(buffer, MAX_MAKER_LEN);
+    in.getline(buffer, MAX_MAKER_LEN, '|');
     strncpy(p.maker, buffer, strlen(buffer));
     p.maker[strlen(buffer)] = '\0';
 
     in >> p.quantity;
-    in >> p.location[0] >> p.location[1] >> p.location[2];
+    in >> p.section >> p.shelf >> p.number;
 
-    in.get();
+    //in.get();
 
-    in.getline(buffer, MAX_COMMENT_LEN);
+    in.getline(buffer, MAX_COMMENT_LEN, '|');
     strncpy(p.comment, buffer, strlen(buffer));
     p.comment[strlen(buffer)] = '\0';
 
