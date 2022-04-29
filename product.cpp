@@ -187,10 +187,10 @@ void Product::print() const
 
 std::ostream& operator << (std::ostream& out, const Product& p)
 {
-    out << p.name        << "| " << p.expiryDate    << " " << p.dateOfEntry << " " 
-        << p.maker       << "| " << p.quantity      << " " 
-        << p.section     << " "  << p.shelf         << " "  << p.number << " "
-        << p.comment     << "|\n";
+    out << p.name    << "| " << p.expiryDate << " " << p.dateOfEntry << " " 
+        << p.maker   << "| " << p.quantity   << " " 
+        << p.section << " "  << p.shelf      << " "  << p.number     << " "
+        << p.comment << "|\n";
 
     return out;
 }
@@ -205,16 +205,12 @@ std::istream& operator >> (std::istream& in, Product& p)
 
     in >> p.expiryDate >> p.dateOfEntry;
 
-    //in.get();
-
     in.getline(buffer, MAX_MAKER_LEN, '|');
     strncpy(p.maker, buffer, strlen(buffer));
     p.maker[strlen(buffer)] = '\0';
 
     in >> p.quantity;
     in >> p.section >> p.shelf >> p.number;
-
-    //in.get();
 
     in.getline(buffer, MAX_COMMENT_LEN, '|');
     strncpy(p.comment, buffer, strlen(buffer));
