@@ -116,12 +116,6 @@ void Product::setMaker(const char* maker)
     strcpy(this->maker, maker);
 }
 
-void Product::setQuantity(const int quantity)
-{
-    assert(quantity >= 0);
-    this->quantity = quantity;
-}
-
 void Product::setComment(const char* comment)
 {
     if(!comment || strlen(comment) > MAX_COMMENT_LEN) comment = "";
@@ -158,6 +152,12 @@ size_t Product::getQuantity() const
     return this->quantity;
 }
 
+void Product::setQuantity(const int quantity)
+{
+    assert(quantity >= 0);
+    this->quantity = quantity;
+}
+
 void Product::setSection(const int section)
 {
     assert(section >= 0);
@@ -182,14 +182,14 @@ void Product::print() const
               << ", date Of Entry: " << this->dateOfEntry << ", maker: "       << this->maker
               << ", quantity: "      << this->quantity    << ", section: "     << this->section
               << ", shelf: "         << this->shelf       << ", number: "      << this->number 
-              << "comment: "         << this->comment     << std::endl;
+              << ", comment: "       << this->comment     << std::endl;
 }
 
 std::ostream& operator << (std::ostream& out, const Product& p)
 {
     out << p.name    << "| " << p.expiryDate << " " << p.dateOfEntry << " " 
         << p.maker   << "| " << p.quantity   << " " 
-        << p.section << " "  << p.shelf      << " "  << p.number     << " "
+        << p.section << " "  << p.shelf      << " " << p.number      << " "
         << p.comment << "|\n";
 
     return out;

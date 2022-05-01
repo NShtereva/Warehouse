@@ -26,8 +26,6 @@ class Product
         void setExpiryDate(const Date& expiryDate);
         void setDateOfEntry(const Date& dateOfEntry);
         void setMaker(const char* maker);
-        void setQuantity(const int quantity);
-        
         void setComment(const char* comment);
     
     public:
@@ -44,6 +42,8 @@ class Product
         const char* getName() const;
         Date getExpiryDate() const;
         size_t getQuantity() const;
+
+        void setQuantity(const int quantity);
 
         void setSection(const int section);
         void setShelf(const int shelf);
