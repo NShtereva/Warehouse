@@ -3,7 +3,8 @@
 
 #include "product.hpp"
 
-const size_t MAX_NUMBER_OF_PRODUCTS = 128;
+const size_t MAX_SHELF_CAPACITY = 64;
+const size_t MAX_QUANTITY_IN_ONE_SHELF_DIVISION = 9;
 
 class Shelf
 {
@@ -37,9 +38,15 @@ class Shelf
         ~Shelf();
 
         Shelf& operator = (const Shelf& other);
+
+        size_t getSize() const;
+
         Shelf& operator += (const Product& product);
 
         void removeProduct(const char* productName, const int quantity);
+
+        Product& operator [] (int index);
+        const Product operator [] (int index) const;
 
         friend std::ostream& operator << (std::ostream& out, const Shelf& shelf);
         friend std::istream& operator >> (std::istream& in, Shelf& shelf);

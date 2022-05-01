@@ -6,7 +6,6 @@
 
 const size_t INITIAL_CAPACITY = 2;
 const size_t INCREASE_STEP = 2;
-const size_t MAX_QUANTITY_IN_ONE_SHELF_DIVISION = 9;
 
 Shelf::Shelf()
 {
@@ -38,7 +37,7 @@ Shelf& Shelf::operator = (const Shelf& other)
 
 void Shelf::allocate(const size_t size)
 {
-    assert(size >= INITIAL_CAPACITY && size <= MAX_NUMBER_OF_PRODUCTS);
+    assert(size >= INITIAL_CAPACITY && size <= MAX_SHELF_CAPACITY);
 
     this->products = new(std::nothrow) Product*[size];
     if(!this->products)
@@ -84,7 +83,7 @@ void Shelf::setSize(const int size)
 
 void Shelf::setCapacity(const int capacity)
 {
-    assert(capacity >= INITIAL_CAPACITY && capacity <= MAX_NUMBER_OF_PRODUCTS);
+    assert(capacity >= INITIAL_CAPACITY && capacity <= MAX_SHELF_CAPACITY);
     this->capacity = capacity;
 }
 
@@ -196,6 +195,11 @@ void Shelf::deleteProduct(const int index)
     delete save;
 
     this->setSize(this->size - 1);  
+}
+
+size_t Shelf::getSize() const
+{
+    return this->size;
 }
 
 Shelf& Shelf::operator += (const Product& product)
@@ -379,6 +383,18 @@ void Shelf::removeProduct(const char* productName, const int quantity)
             }
         }
     }
+}
+
+Product& Shelf::operator [] (int index)
+{
+    assert(index >= 0 && index < this->size);
+    return *this->products[index];
+}
+
+const Product Shelf::operator [] (int index) const
+{
+    assert(index >= 0 && index < this->size);
+    return *this->products[index];
 }
 
 std::ostream& operator << (std::ostream& out, const Shelf& shelf)
