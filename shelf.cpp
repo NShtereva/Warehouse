@@ -243,8 +243,9 @@ Shelf& Shelf::operator += (const Product& product)
             }
             else if(this->products[i]->getExpiryDate() < product.getExpiryDate())
             {
-                while(i + 1 < this->size && *this->products[i] == *this->products[i + 1] && 
-                      this->products[i]->getExpiryDate() == this->products[i + 1]->getExpiryDate())
+                while(i + 1 < this->size && *this->products[i + 1] == product && 
+                      (this->products[i + 1]->getExpiryDate() < this->products[i + 1]->getExpiryDate() || 
+                                this->products[i + 1]->getExpiryDate() == this->products[i + 1]->getExpiryDate()))
                 {
                     i++;
                 }
@@ -252,7 +253,7 @@ Shelf& Shelf::operator += (const Product& product)
                 if(product.getQuantity() <= MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
                 {
                     index = i + 1;
-                    this->relocationInAscOrderOfIndices(index + 1, this->size);
+                    this->relocationInDescOrderOfIndices(this->size, index);
                 }
                 else
                 {
@@ -413,6 +414,8 @@ std::istream& operator >> (std::istream& in, Shelf& shelf)
 {
     unsigned int size;
     in >> size;
+
+    in.get();
 
     for(int i = 0; i < size; i++)
     {
