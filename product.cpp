@@ -200,21 +200,24 @@ std::istream& operator >> (std::istream& in, Product& p)
     char buffer[MAX_COMMENT_LEN];
 
     in.getline(buffer, MAX_NAME_LEN, '|');
-    strncpy(p.name, buffer, strlen(buffer));
-    p.name[strlen(buffer)] = '\0';
+    p.setName(buffer);
 
     in >> p.expiryDate >> p.dateOfEntry;
 
+    in.get();
+
     in.getline(buffer, MAX_MAKER_LEN, '|');
-    strncpy(p.maker, buffer, strlen(buffer));
-    p.maker[strlen(buffer)] = '\0';
+    p.setMaker(buffer);
 
     in >> p.quantity;
     in >> p.section >> p.shelf >> p.number;
 
+    in.get();
+
     in.getline(buffer, MAX_COMMENT_LEN, '|');
-    strncpy(p.comment, buffer, strlen(buffer));
-    p.comment[strlen(buffer)] = '\0';
+    p.setComment(buffer);
+
+    in.get();
 
     return in;
 }
