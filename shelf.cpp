@@ -133,27 +133,6 @@ void Shelf::relocationInAscOrderOfIndices(const int from, const int to)
     }
 }
 
-bool Shelf::quantityProcessingAsc(int& quantity, int& index, int& i, const Product& product)
-{
-    while(quantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
-    {
-        index = i + 1;
-        this->relocationInAscOrderOfIndices(index + 1, this->size);
-
-        bool added = this->addProduct(product, index);
-        if(!added) return false;
-
-        this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-        quantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
-        i++;
-    }
-
-    index = i + 1;
-    this->relocationInAscOrderOfIndices(index + 1, this->size);
-
-    return true;
-}
-
 void Shelf::relocationInDescOrderOfIndices(const int from, const int to)
 {
     for(int j = from; j > to; j--)
@@ -161,27 +140,6 @@ void Shelf::relocationInDescOrderOfIndices(const int from, const int to)
         this->products[j] = this->products[j - 1];
         this->products[j]->setNumber(j + 1);
     }
-}
-
-bool Shelf::quantityProcessingDesc(int& quantity, int& index, int& i, const Product& product)
-{
-    while(quantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
-    {
-        index = i;
-        this->relocationInDescOrderOfIndices(this->size, index);
-
-        bool added = this->addProduct(product, index);
-        if(!added) return false;
-
-        this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-        quantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
-        i++;
-    }
-
-    index = i;
-    this->relocationInDescOrderOfIndices(this->size, index);
-
-    return true;
 }
 
 void Shelf::deleteProduct(const int index)
@@ -222,30 +180,44 @@ Shelf& Shelf::operator += (const Product& product)
 
             if(this->products[i]->getExpiryDate() == product.getExpiryDate())
             {
-                newQuantity = this->products[i]->getQuantity() + product.getQuantity();
-
-                if(newQuantity <= MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                while(i + 1 < this->size && *this->products[i + 1] == product && 
+                            this->products[i + 1]->getExpiryDate() == product.getExpiryDate())
                 {
-                    this->products[i]->setQuantity(newQuantity);
-                    return *this;
+                    i++;
                 }
-                else
-                {
-                    this->products[i]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
 
-                    newQuantity = (newQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION) ?
-                                  (newQuantity - MAX_QUANTITY_IN_ONE_SHELF_DIVISION) :
-                                  (MAX_QUANTITY_IN_ONE_SHELF_DIVISION - newQuantity);
-                    
-                    bool flag = quantityProcessingAsc(newQuantity, index, i, product);
-                    if(!flag) return *this; 
-                }                
+                if(this->products[i]->getQuantity() < MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                {
+                    int diff = MAX_QUANTITY_IN_ONE_SHELF_DIVISION - this->products[i]->getQuantity();
+                    this->products[i]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                    newQuantity = product.getQuantity() - diff;
+                }
+                else // this->products[i]->getQuantity() == MAX_QUANTITY_IN_ONE_SHELF_DIVISION
+                {
+                    newQuantity = product.getQuantity();
+                }
+
+                index = i + 1;
+                while(newQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                {
+                    this->relocationInDescOrderOfIndices(this->size, index);
+
+                    bool added = this->addProduct(product, index);
+                    if(!added) return *this;
+
+                    this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                    newQuantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
+                    i++;
+                    index++;
+                }
+
+                this->relocationInDescOrderOfIndices(this->size, index);               
             }
             else if(this->products[i]->getExpiryDate() < product.getExpiryDate())
             {
                 while(i + 1 < this->size && *this->products[i + 1] == product && 
-                      (this->products[i + 1]->getExpiryDate() < this->products[i + 1]->getExpiryDate() || 
-                                this->products[i + 1]->getExpiryDate() == this->products[i + 1]->getExpiryDate()))
+                      (this->products[i + 1]->getExpiryDate() < product.getExpiryDate() || 
+                                product.getExpiryDate() == this->products[i + 1]->getExpiryDate()))
                 {
                     i++;
                 }
@@ -259,8 +231,21 @@ Shelf& Shelf::operator += (const Product& product)
                 {
                     int currQuantity = product.getQuantity();
 
-                    bool flag = quantityProcessingAsc(currQuantity, index, i, product);
-                    if(!flag) return *this; 
+                    while(currQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                    {
+                        index = i + 1;
+                        this->relocationInAscOrderOfIndices(index + 1, this->size);
+
+                        bool added = this->addProduct(product, index);
+                        if(!added) return *this;
+
+                        this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                        currQuantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
+                        i++;
+                    }
+
+                    index = i + 1;
+                    this->relocationInAscOrderOfIndices(index + 1, this->size);
 
                     newQuantity = currQuantity;
                 }
@@ -276,8 +261,21 @@ Shelf& Shelf::operator += (const Product& product)
                 {
                     int currQuantity = product.getQuantity();
 
-                    bool flag = quantityProcessingDesc(currQuantity, index, i, product);
-                    if(!flag) return *this; 
+                    while(currQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                    {
+                        index = i;
+                        this->relocationInDescOrderOfIndices(this->size, index);
+
+                        bool added = this->addProduct(product, index);
+                        if(!added) return *this;
+
+                        this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                        currQuantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
+                        i++;
+                    }
+
+                    index = i;
+                    this->relocationInDescOrderOfIndices(this->size, index);
 
                     newQuantity = currQuantity;
                 }

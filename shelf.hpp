@@ -24,11 +24,8 @@ class Shelf
 
         bool addProduct(const Product& product, const int index);
         
-        void relocationInAscOrderOfIndices(const int from, const int to);
-        bool quantityProcessingAsc(int& quantity, int& index, int& i, const Product& product);
-        
+        void relocationInAscOrderOfIndices(const int from, const int to);        
         void relocationInDescOrderOfIndices(const int from, const int to);
-        bool quantityProcessingDesc(int& quantity, int& index, int& i, const Product& product);
 
         void deleteProduct(const int index);
         
