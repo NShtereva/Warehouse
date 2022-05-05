@@ -193,11 +193,12 @@ void Section::addProduct(Product& product)
     }
 }
 
-void Section::removeProduct(const char* productName, const int quantity)
+// In the variable locations will be kept the shelf number and the indices on which the product is found 
+// on this shelf. Memory for locations will be allocated only in case of insufficient quantity of the product, 
+// otherwise locations = nullptr and _size = 0.
+bool Section::removeProduct(const char* productName, const int quantity, int**& locations, int& _size)
 {
-    int numberOfDivisions = ceil((double) quantity / MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-
-    int counter = 0;
+    int quantityOnThisSection = 0; _size = 0;
 
     for(int i = 0; i < this->size; i++)
     {
@@ -207,46 +208,58 @@ void Section::removeProduct(const char* productName, const int quantity)
         {
             if(strcmp((*this->shelves[i])[j].getName(), productName) == 0)
             {
-                counter += (*this->shelves[i])[j].getQuantity();
+                quantityOnThisSection += (*this->shelves[i])[j].getQuantity();
+                _size++;
             }
         }       
     }
+    
+    int fictiveSize = 0, *fictiveLocations = nullptr, save = quantityOnThisSection;
 
-    if(counter >= quantity)
+    if(quantityOnThisSection >= quantity)
     {
-        counter = quantity;
+        quantityOnThisSection = quantity;
 
-        for(int i = 0; i < this->size && counter > 0; i++)
+        for(int i = 0; i < this->size && quantityOnThisSection > 0; i++)
         {
             int currShelfSize = this->shelves[i]->getSize();
 
             int j = 0;
             bool atLeastOneRemoved = false, removed = false;
 
-            while(j < currShelfSize && counter > 0 && !removed) 
+            while(j < currShelfSize && quantityOnThisSection > 0 && !removed) 
             {
                 if(strcmp((*this->shelves[i])[j].getName(), productName) == 0)
                 {
                     int currQuantity = (*this->shelves[i])[j].getQuantity();
                     
-                    if(currQuantity > counter)
+                    if(currQuantity > quantityOnThisSection)
                     {
                         (*this->shelves[i])[j].print();
-                        (*this->shelves[i])[j].setQuantity(currQuantity - counter);
-                        counter = 0;
+                        (*this->shelves[i])[j].setQuantity(currQuantity - quantityOnThisSection);
+
+                        locations = nullptr;
+                        _size = 0;
+
+                        return true;
                     }
-                    else if(currQuantity == counter)
+                    else if(currQuantity == quantityOnThisSection)
                     {
-                        (*this->shelves[i]).removeProduct(productName, counter);
-                        currShelfSize--;
-                        counter = 0;
+                        bool hasBeenRemoved = (*this->shelves[i]).removeProduct(productName, quantityOnThisSection, 
+                                                                                        fictiveLocations, fictiveSize);
+                        
+                        locations = nullptr;
+                        _size = 0;
+
+                        return hasBeenRemoved && fictiveLocations == nullptr && fictiveSize == 0;
                     }
-                    else // currQuantity < counter
+                    else // currQuantity < quantityOnThisSection
                     {
-                        (*this->shelves[i]).removeProduct(productName, currQuantity);
+                        (*this->shelves[i]).removeProduct(productName, currQuantity, fictiveLocations, fictiveSize);
                         currShelfSize--;
-                        counter -= currQuantity;
+                        quantityOnThisSection -= currQuantity;
                     }
+
                     atLeastOneRemoved = true;
                 }
                 else 
@@ -260,13 +273,55 @@ void Section::removeProduct(const char* productName, const int quantity)
     else
     {
         // Insufficient quantity
-        return;
+        locations = new(std::nothrow) int*[_size];
+        if(!locations)
+        {
+            std::cout << "Memory not allocated successfully!\n";
+
+            _size = 0;
+            locations = nullptr;
+
+            return false;
+        }
+
+        for(int i = 0; i < _size; i++)
+        {
+            locations[i] = new(std::nothrow) int[2]; // shelf and number
+            if(!locations[i])
+            {
+                std::cout << "Memory not allocated successfully!\n";
+
+                _size = 0;
+                delete[] locations;
+                locations = nullptr;
+
+                return false;
+            }
+        }
+
+        _size = 0;
+
+        for(int i = 0; i < this->size && save > 0; i++)
+        {
+            int currShelfSize = this->shelves[i]->getSize();
+
+            for(int j = 0; j < currShelfSize && save > 0; j++) 
+            {
+                if(strcmp((*this->shelves[i])[j].getName(), productName) == 0)
+                {
+                    save -= (*this->shelves[i])[j].getQuantity();
+                    
+                    locations[_size][0] = i;        // shelf
+                    locations[_size][1] = j;        // number
+                    _size++;
+                }
+            }       
+        }
+
+        return false;
     }
 
-    if(counter > 0)
-    {
-        // Insufficient quantity
-    }
+    return false;
 }
 
 Shelf& Section::operator [] (int index)

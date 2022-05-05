@@ -3,7 +3,7 @@
 
 #include "shelf.hpp"
 
-const size_t MAX_SECTION_CAPACITY = 64;
+const size_t MAX_SECTION_CAPACITY = 16;
 
 class Section
 {
@@ -35,7 +35,7 @@ class Section
         Section& operator += (const Shelf& shelf);
 
         void addProduct(Product& product);
-        void removeProduct(const char* productName, const int quantity);
+        bool removeProduct(const char* productName, const int quantity, int**& locations, int& size);
 
         Shelf& operator [] (int index);
         const Shelf operator [] (int index) const;

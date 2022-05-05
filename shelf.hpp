@@ -3,7 +3,7 @@
 
 #include "product.hpp"
 
-const size_t MAX_SHELF_CAPACITY = 64;
+const size_t MAX_SHELF_CAPACITY = 32;
 const size_t MAX_QUANTITY_IN_ONE_SHELF_DIVISION = 9;
 
 class Shelf
@@ -40,7 +40,7 @@ class Shelf
 
         Shelf& operator += (const Product& product);
 
-        void removeProduct(const char* productName, const int quantity);
+        bool removeProduct(const char* productName, const int quantity, int*& numbers, int& size);
 
         Product& operator [] (int index);
         const Product operator [] (int index) const;

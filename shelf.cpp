@@ -312,7 +312,10 @@ Shelf& Shelf::operator += (const Product& product)
     return *this;
 }
 
-void Shelf::removeProduct(const char* productName, const int quantity)
+// In the variable numbers will be kept the indices on which the product is found on this shelf. Memory 
+// for numbers will be allocated only in case of insufficient quantity of the product, otherwise 
+// numbers = nullptr and size = 0.
+bool Shelf::removeProduct(const char* productName, const int quantity, int*& numbers, int& size)
 {
     for(int i = 0; i < this->size; i++)
     {
@@ -324,49 +327,104 @@ void Shelf::removeProduct(const char* productName, const int quantity)
             {
                 this->products[i]->print();
                 this->products[i]->setQuantity(currQuantity - quantity);
-                return;
+
+                numbers = nullptr;
+                size = 0;
+
+                return true;
             }
-            else if(currQuantity < quantity)
+            else if(currQuantity < quantity && i + 1 >= this->size)
+            {
+                // Insufficient quantity
+                size = 1;
+
+                numbers = new(std::nothrow) int[size];
+                if(!numbers)
+                {
+                    std::cout << "Memory not allocated successfully!\n";
+                    size = 0;
+                    return false;
+                }
+
+                numbers[0] = i;
+                return false;
+            }
+            else if(currQuantity < quantity && i + 1 < this->size)
             {
                 if(strcmp(this->products[i + 1]->getName(), productName) != 0)
                 {
                     // Insufficient quantity
-                    return;
+                    size = 1;
+
+                    numbers = new(std::nothrow) int[size];
+                    if(!numbers)
+                    {
+                        std::cout << "Memory not allocated successfully!\n";
+                        size = 0;
+                        return false;
+                    }
+
+                    numbers[0] = i;
+                    return false;
                 }
 
-                int counter = currQuantity, index = i + 1;
+                size = 1;
+                int quantityOnThisShelf = currQuantity, index = i + 1;
 
                 while(index < this->size && strcmp(this->products[index]->getName(), productName) == 0)
                 {
-                    counter += this->products[index]->getQuantity();
-                    index++;
+                    quantityOnThisShelf += this->products[index]->getQuantity();
+                    index++; size++;
                 }
 
-                if(counter < quantity)
+                if(quantityOnThisShelf < quantity)
                 {
                     // Insufficient quantity
-                    return;
+                    numbers = new(std::nothrow) int[size];
+                    if(!numbers)
+                    {
+                        std::cout << "Memory not allocated successfully!\n";
+                        size = 0;
+                        return false;
+                    }
+
+                    int p = 0;
+                    for(int j = i; j < index && p < size; j++)
+                    {
+                        numbers[p] = j;
+                        p++;
+                    }
+
+                    return false;
                 }
 
                 this->products[i]->print();
                 this->deleteProduct(i);
 
-                counter = currQuantity, index = i;
+                quantityOnThisShelf = currQuantity, index = i;
                 
                 while(strcmp(this->products[index]->getName(), productName) == 0)
                 {
                     this->products[index]->print();
-                    counter += this->products[index]->getQuantity();
+                    quantityOnThisShelf += this->products[index]->getQuantity();
 
-                    if(counter > quantity)
+                    if(quantityOnThisShelf > quantity)
                     {
-                        this->products[index]->setQuantity(counter - quantity);
-                        return;
+                        this->products[index]->setQuantity(quantityOnThisShelf - quantity);
+
+                        numbers = nullptr;
+                        size = 0;
+
+                        return true;
                     }
-                    else if(counter == quantity)
+                    else if(quantityOnThisShelf == quantity)
                     {
                         this->deleteProduct(i);
-                        return;     
+
+                        numbers = nullptr;
+                        size = 0;
+
+                        return true;     
                     }
                     else
                     {
@@ -374,14 +432,22 @@ void Shelf::removeProduct(const char* productName, const int quantity)
                     }
                 }
             }
-            else
+            else // currQuantity == quantity
             {
                 this->products[i]->print();
                 this->deleteProduct(i);
-                return;              
+
+                numbers = nullptr;
+                size = 0;
+
+                return true;              
             }
         }
     }
+    
+    numbers = nullptr;
+    size = 0;
+    return false;
 }
 
 Product& Shelf::operator [] (int index)
