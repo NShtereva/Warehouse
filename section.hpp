@@ -34,7 +34,7 @@ class Section
 
         Section& operator += (const Shelf& shelf);
 
-        void addProduct(Product& product);
+        void addProduct(const Product& product);
         bool removeProduct(const char* productName, const int quantity, int**& locations, int& size);
 
         Shelf& operator [] (int index);

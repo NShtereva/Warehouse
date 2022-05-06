@@ -155,18 +155,20 @@ Section& Section::operator += (const Shelf& shelf)
     return *this;
 }
 
-void Section::addProduct(Product& product)
+void Section::addProduct(const Product& product)
 {
+    Product copy(product);
+
     bool added = false;
 
     for(int i = 0; i < this->size && !added; i++)
     {
-        int numberOfNewDivisions = ceil((double) product.getQuantity() / MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+        int numberOfNewDivisions = ceil((double) copy.getQuantity() / MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
 
-        if(this->shelves[i]->getSize() + numberOfNewDivisions <= MAX_SHELF_CAPACITY && hasTheSameProduct(product, i))
+        if(this->shelves[i]->getSize() + numberOfNewDivisions <= MAX_SHELF_CAPACITY && hasTheSameProduct(copy, i))
         {
-            product.setShelf(i + 1);
-            *this->shelves[i] += product;
+            copy.setShelf(i + 1);
+            *this->shelves[i] += copy;
             added = true;
         }
     }
@@ -176,8 +178,8 @@ void Section::addProduct(Product& product)
         Shelf newShelf;
         *this += newShelf;
 
-        product.setShelf(1);
-        *this->shelves[0] += product;
+        copy.setShelf(1);
+        *this->shelves[0] += copy;
     }
     else if(!added && this->size > 0)
     {
@@ -185,8 +187,8 @@ void Section::addProduct(Product& product)
         {
             if(this->shelves[i]->getSize() <= MAX_SHELF_CAPACITY)
             {
-                product.setShelf(i + 1);
-                *this->shelves[i] += product;
+                copy.setShelf(i + 1);
+                *this->shelves[i] += copy;
             }
         }
     }
