@@ -41,6 +41,7 @@ class Product
 
         const char* getName() const;
         Date getExpiryDate() const;
+        const char* getMaker() const;
         size_t getQuantity() const;
 
         void setQuantity(const int quantity);

@@ -147,6 +147,11 @@ Date Product::getExpiryDate() const
     return this->expiryDate;
 }
 
+const char* Product::getMaker() const
+{
+    return this->maker;
+}
+
 size_t Product::getQuantity() const
 {
     return this->quantity;
@@ -179,7 +184,7 @@ void Product::setNumber(const int number)
 void Product::print() const
 {
     std::cout << "name: "            << this->name        << ", expiry date: " << this->expiryDate 
-              << ", date Of Entry: " << this->dateOfEntry << ", maker: "       << this->maker
+              << ", date Of entry: " << this->dateOfEntry << ", maker: "       << this->maker
               << ", quantity: "      << this->quantity    << ", section: "     << this->section
               << ", shelf: "         << this->shelf       << ", number: "      << this->number 
               << ", comment: "       << this->comment     << std::endl;
@@ -187,10 +192,12 @@ void Product::print() const
 
 std::ostream& operator << (std::ostream& out, const Product& p)
 {
-    out << p.name    << "| " << p.expiryDate << " " << p.dateOfEntry << " " 
-        << p.maker   << "| " << p.quantity   << " " 
+    char ch = (&out == &std::cout) ? ' ' : '|'; 
+
+    out << p.name    << ch   << p.expiryDate << " " << p.dateOfEntry << " " 
+        << p.maker   << ch   << p.quantity   << " " 
         << p.section << " "  << p.shelf      << " " << p.number      << " "
-        << p.comment << "|\n";
+        << p.comment << ch   << "\n";
 
     return out;
 }
@@ -199,25 +206,44 @@ std::istream& operator >> (std::istream& in, Product& p)
 {
     char buffer[MAX_COMMENT_LEN];
 
-    in.getline(buffer, MAX_NAME_LEN, '|');
+    char delim = (&in == &std::cin) ? '\n' : '|'; 
+    
+    if(&in == &std::cin) 
+        std::cout << "name: ";
+    in.getline(buffer, MAX_NAME_LEN, delim);
     p.setName(buffer);
 
-    in >> p.expiryDate >> p.dateOfEntry;
+    if(&in == &std::cin) 
+        std::cout << "expiry date: ";
+    in >> p.expiryDate;
+
+    if(&in == &std::cin) 
+        std::cout << "date Of entry: ";
+    in >> p.dateOfEntry;
 
     in.get();
 
-    in.getline(buffer, MAX_MAKER_LEN, '|');
+    if(&in == &std::cin) 
+        std::cout << "maker: ";
+    in.getline(buffer, MAX_MAKER_LEN, delim);
     p.setMaker(buffer);
 
+    if(&in == &std::cin) 
+        std::cout << "quantity: ";
     in >> p.quantity;
-    in >> p.section >> p.shelf >> p.number;
+
+    if(&in != &std::cin) 
+        in >> p.section >> p.shelf >> p.number;
 
     in.get();
 
-    in.getline(buffer, MAX_COMMENT_LEN, '|');
+    if(&in == &std::cin) 
+        std::cout << "comment: ";
+    in.getline(buffer, MAX_COMMENT_LEN, delim);
     p.setComment(buffer);
 
-    in.get();
+    if(&in != &std::cin) 
+        in.get();
 
     return in;
 }
