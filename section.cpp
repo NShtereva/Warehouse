@@ -175,10 +175,9 @@ void Section::addProduct(Product& product)
     {
         Shelf newShelf;
         *this += newShelf;
-        
+
         product.setShelf(1);
         *this->shelves[0] += product;
-
     }
     else if(!added && this->size > 0)
     {

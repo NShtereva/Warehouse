@@ -3,7 +3,7 @@
 
 #include "product.hpp"
 
-const size_t MAX_SHELF_CAPACITY = 32;
+const size_t MAX_SHELF_CAPACITY = 16;
 const size_t MAX_QUANTITY_IN_ONE_SHELF_DIVISION = 9;
 
 class Shelf
