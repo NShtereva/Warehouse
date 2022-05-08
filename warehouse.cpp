@@ -145,6 +145,11 @@ void Warehouse::deallocateLocations(int**& locations, const int size)
     locations = nullptr;
 }
 
+size_t Warehouse::getSize() const
+{
+    return this->size;
+}
+
 Warehouse& Warehouse::operator += (const Section& section)
 {
     if(this->size + 1 > this->capacity)
@@ -253,7 +258,7 @@ bool Warehouse::addProduct(const Product& product)
     return false;
 }
 
-bool Warehouse::removeProduct(const char* productName, const int quantity, int**& locations, int& _size)
+bool Warehouse::removeProduct(const char* productName, const int quantity, int**& locations, int& _size, std::ostream& out)
 {
     if(this->size == 0)
     {
@@ -276,7 +281,7 @@ bool Warehouse::removeProduct(const char* productName, const int quantity, int**
 
     for(int i = 0; i < this->size && !removed; i++)
     {
-        bool flag = this->sections[i]->removeProduct(productName, quantity, currLocations, currSize);
+        bool flag = this->sections[i]->removeProduct(productName, quantity, currLocations, currSize, out);
 
         if(flag && currSize == 0 && currLocations == nullptr)
         {
@@ -328,6 +333,30 @@ bool Warehouse::removeProduct(const char* productName, const int quantity, int**
     }
     
     return false;
+}
+
+size_t Warehouse::totalQuantityOfProduct(const Product& product) const
+{
+    int counter = 0;
+
+    for(int i = 0; i < this->size; i++)
+    {
+        counter += this->sections[i]->totalQuantityOfProduct(product);
+    }
+
+    return counter;
+}
+
+Section& Warehouse::operator [] (int index)
+{
+    assert(index >= 0 && index < this->size);
+    return *this->sections[index];
+}
+
+const Section Warehouse::operator [] (int index) const
+{
+    assert(index >= 0 && index < this->size);
+    return *this->sections[index];
 }
 
 std::ostream& operator << (std::ostream& out, const Warehouse& warehouse)
