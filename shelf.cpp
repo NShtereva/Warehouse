@@ -315,7 +315,7 @@ Shelf& Shelf::operator += (const Product& product)
 // In the variable numbers will be kept the indices on which the product is found on this shelf. Memory 
 // for numbers will be allocated only in case of insufficient quantity of the product, otherwise 
 // numbers = nullptr and size = 0.
-bool Shelf::removeProduct(const char* productName, const int quantity, int*& numbers, int& size)
+bool Shelf::removeProduct(const char* productName, const int quantity, int*& numbers, int& size, std::ostream& out)
 {
     for(int i = 0; i < this->size; i++)
     {
@@ -325,7 +325,7 @@ bool Shelf::removeProduct(const char* productName, const int quantity, int*& num
 
             if(currQuantity > quantity)
             {
-                this->products[i]->print();
+                this->products[i]->print(out);
                 this->products[i]->setQuantity(currQuantity - quantity);
 
                 numbers = nullptr;
@@ -398,14 +398,14 @@ bool Shelf::removeProduct(const char* productName, const int quantity, int*& num
                     return false;
                 }
 
-                this->products[i]->print();
+                this->products[i]->print(out);
                 this->deleteProduct(i);
 
                 quantityOnThisShelf = currQuantity, index = i;
                 
                 while(strcmp(this->products[index]->getName(), productName) == 0)
                 {
-                    this->products[index]->print();
+                    this->products[index]->print(out);
                     quantityOnThisShelf += this->products[index]->getQuantity();
 
                     if(quantityOnThisShelf > quantity)
@@ -434,7 +434,7 @@ bool Shelf::removeProduct(const char* productName, const int quantity, int*& num
             }
             else // currQuantity == quantity
             {
-                this->products[i]->print();
+                this->products[i]->print(out);
                 this->deleteProduct(i);
 
                 numbers = nullptr;
@@ -448,6 +448,30 @@ bool Shelf::removeProduct(const char* productName, const int quantity, int*& num
     numbers = nullptr;
     size = 0;
     return false;
+}
+
+size_t Shelf::totalQuantityOfProduct(const Product& product) const
+{
+    int counter = 0;
+    bool flag = false;
+
+    for(int i = 0; i < this->size && !flag; i++)
+    {
+        if(*this->products[i] == product)
+        {
+            flag = true;
+            counter += this->products[i]->getQuantity();
+            i++;
+
+            while(i < this->size && *this->products[i - 1] == *this->products[i])
+            {
+                counter += this->products[i]->getQuantity();
+                i++;
+            }
+        }
+    }
+
+    return counter;
 }
 
 Product& Shelf::operator [] (int index)

@@ -197,7 +197,7 @@ void Section::addProduct(const Product& product)
 // In the variable locations will be kept the shelf number and the indices on which the product is found 
 // on this shelf. Memory for locations will be allocated only in case of insufficient quantity of the product, 
 // otherwise locations = nullptr and _size = 0.
-bool Section::removeProduct(const char* productName, const int quantity, int**& locations, int& _size)
+bool Section::removeProduct(const char* productName, const int quantity, int**& locations, int& _size, std::ostream& out)
 {
     int quantityOnThisSection = 0; _size = 0;
 
@@ -236,7 +236,7 @@ bool Section::removeProduct(const char* productName, const int quantity, int**& 
                     
                     if(currQuantity > quantityOnThisSection)
                     {
-                        (*this->shelves[i])[j].print();
+                        (*this->shelves[i])[j].print(out);
                         (*this->shelves[i])[j].setQuantity(currQuantity - quantityOnThisSection);
 
                         locations = nullptr;
@@ -247,7 +247,7 @@ bool Section::removeProduct(const char* productName, const int quantity, int**& 
                     else if(currQuantity == quantityOnThisSection)
                     {
                         bool hasBeenRemoved = (*this->shelves[i]).removeProduct(productName, quantityOnThisSection, 
-                                                                                        fictiveLocations, fictiveSize);
+                                                                                        fictiveLocations, fictiveSize, out);
                         
                         locations = nullptr;
                         _size = 0;
@@ -256,7 +256,7 @@ bool Section::removeProduct(const char* productName, const int quantity, int**& 
                     }
                     else // currQuantity < quantityOnThisSection
                     {
-                        (*this->shelves[i]).removeProduct(productName, currQuantity, fictiveLocations, fictiveSize);
+                        (*this->shelves[i]).removeProduct(productName, currQuantity, fictiveLocations, fictiveSize, out);
                         currShelfSize--;
                         quantityOnThisSection -= currQuantity;
                     }
@@ -323,6 +323,18 @@ bool Section::removeProduct(const char* productName, const int quantity, int**& 
     }
 
     return false;
+}
+
+size_t Section::totalQuantityOfProduct(const Product& product) const
+{
+    int counter = 0;
+
+    for(int i = 0; i < this->size; i++)
+    {
+        counter += this->shelves[i]->totalQuantityOfProduct(product);
+    }
+
+    return counter;
 }
 
 Shelf& Section::operator [] (int index)

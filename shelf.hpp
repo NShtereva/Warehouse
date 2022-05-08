@@ -40,7 +40,10 @@ class Shelf
 
         Shelf& operator += (const Product& product);
 
-        bool removeProduct(const char* productName, const int quantity, int*& numbers, int& size);
+        bool removeProduct(const char* productName, const int quantity, int*& numbers, 
+                                                    int& size, std::ostream& out = std::cout);
+
+        size_t totalQuantityOfProduct(const Product& product) const;
 
         Product& operator [] (int index);
         const Product operator [] (int index) const;

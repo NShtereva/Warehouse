@@ -35,7 +35,10 @@ class Section
         Section& operator += (const Shelf& shelf);
 
         void addProduct(const Product& product);
-        bool removeProduct(const char* productName, const int quantity, int**& locations, int& size);
+        bool removeProduct(const char* productName, const int quantity, 
+                                int**& locations, int& size, std::ostream& out = std::cout);
+        
+        size_t totalQuantityOfProduct(const Product& product) const;
 
         Shelf& operator [] (int index);
         const Shelf operator [] (int index) const;
