@@ -147,6 +147,11 @@ Date Product::getExpiryDate() const
     return this->expiryDate;
 }
 
+Date Product::getDateOfEntry() const
+{
+    return this->dateOfEntry;
+}
+
 const char* Product::getMaker() const
 {
     return this->maker;
@@ -181,13 +186,13 @@ void Product::setNumber(const int number)
     this->number = number;
 }
 
-void Product::print() const
+void Product::print(std::ostream& out) const
 {
-    std::cout << "name: "            << this->name        << ", expiry date: " << this->expiryDate 
-              << ", date Of entry: " << this->dateOfEntry << ", maker: "       << this->maker
-              << ", quantity: "      << this->quantity    << ", section: "     << this->section
-              << ", shelf: "         << this->shelf       << ", number: "      << this->number 
-              << ", comment: "       << this->comment     << std::endl;
+    out << "name: "            << this->name        << ", expiry date: " << this->expiryDate 
+        << ", date Of entry: " << this->dateOfEntry << ", maker: "       << this->maker
+        << ", quantity: "      << this->quantity    << ", section: "     << this->section
+        << ", shelf: "         << this->shelf       << ", number: "      << this->number 
+        << ", comment: "       << this->comment     << std::endl;
 }
 
 std::ostream& operator << (std::ostream& out, const Product& p)
@@ -215,11 +220,13 @@ std::istream& operator >> (std::istream& in, Product& p)
 
     if(&in == &std::cin) 
         std::cout << "expiry date: ";
-    in >> p.expiryDate;
+    Date expiryDate; in >> expiryDate;
+    p.setExpiryDate(expiryDate);
 
     if(&in == &std::cin) 
         std::cout << "date Of entry: ";
-    in >> p.dateOfEntry;
+    Date dateOfEntry; in >> dateOfEntry;
+    p.setDateOfEntry(dateOfEntry);
 
     in.get();
 
@@ -230,7 +237,8 @@ std::istream& operator >> (std::istream& in, Product& p)
 
     if(&in == &std::cin) 
         std::cout << "quantity: ";
-    in >> p.quantity;
+    int quantity; in >> quantity;
+    p.setQuantity(quantity);
 
     if(&in != &std::cin) 
         in >> p.section >> p.shelf >> p.number;

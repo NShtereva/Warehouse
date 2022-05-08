@@ -41,6 +41,7 @@ class Product
 
         const char* getName() const;
         Date getExpiryDate() const;
+        Date getDateOfEntry() const;
         const char* getMaker() const;
         size_t getQuantity() const;
 
@@ -50,7 +51,7 @@ class Product
         void setShelf(const int shelf);
         void setNumber(const int number);
 
-        void print() const;
+        void print(std::ostream& out = std::cout) const;
 
         friend std::ostream& operator << (std::ostream& out, const Product& p);
         friend std::istream& operator >> (std::istream& in, Product& p);
