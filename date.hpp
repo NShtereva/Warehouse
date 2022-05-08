@@ -25,6 +25,9 @@ class Date
         bool operator == (const Date& other) const;
         bool operator < (const Date& other) const;
 
+        // days >= 1 && days <= 28
+        Date& operator += (const int days);
+
         friend std::ostream& operator << (std::ostream& out, const Date& date);
         friend std::istream& operator >> (std::istream& in, Date& date);
 };

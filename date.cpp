@@ -29,7 +29,7 @@ unsigned int Date::getYear() const
 
 void Date::setDate(const int day, const int month, const int year)
 {
-    assert(month >= 1 && month <= 12);
+    assert(month >= 1 && month <= 12 && year >= 0);
 
     if(this->isLeapYear(year) && month == 2)
     {
@@ -67,6 +67,42 @@ bool Date::operator < (const Date& other) const
     return this->year < other.year ||
            (this->year == other.year && this->month < other.month) ||
            (this->year == other.year && this->month == other.month && this->day < other.day);
+}
+
+Date& Date::operator += (const int days)
+{
+    assert(days >= 1 && days <= 28);
+
+    this->day += days;
+
+    if(this->day > 31 && (month == 1 || month == 3 || month == 5 || month == 7 || 
+                                                month == 8 || month == 10 || month == 12))
+    {
+        this->day -= 31;
+        if(this->month == 12)
+        {
+            this->month = 1;
+            this->year++;
+        }
+        else this->month++;       
+    }
+    else if(this->day > 30 && (month == 4 || month == 6 || month == 9 || month == 11))
+    {
+        this->day -= 30;
+        this->month++; 
+    }
+    else if(days > 29 && this->isLeapYear(year) && month == 2)
+    {
+        this->day -= 29;
+        this->month++; 
+    }
+    else if(days > 28 && !this->isLeapYear(year) && month == 2)
+    {
+        this->day -= 28;
+        this->month++; 
+    }
+
+    return *this;
 }
 
 std::ostream& operator << (std::ostream& out, const Date& date)
