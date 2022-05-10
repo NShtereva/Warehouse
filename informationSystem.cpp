@@ -3,13 +3,6 @@
 #include <cstring>
 #include <cmath>
 
-const size_t MAX_NAME_LEN = 255;
-const size_t MAX_BUFFER_LEN = 10000;
-const size_t MAX_OPERATION_LEN = 20;
-
-InformationSystem::InformationSystem() : warehouse()
-{ }
-
 void InformationSystem::deallocateLocations(int**& locations, const int size)
 {
     for(int i = 0; i < size; i++)
@@ -65,6 +58,38 @@ char* InformationSystem::processFileName(int day, int month, int year)
     return fileName;
 }
 
+size_t InformationSystem::getFileSize(const char* fileName)
+{
+    std::ifstream file(fileName);
+    if (!file)
+    {
+        std::cout << "Problem while opening the file!" << std::endl;
+        return 0;
+    }
+
+    size_t counter = 0;
+    char c;
+    while(file.get(c))
+    {
+        counter++;
+    }
+
+    file.close();
+
+    return counter;
+}
+
+void InformationSystem::clearFileWithChanges()
+{
+    std::ofstream changes("changes.txt", std::ios::trunc);
+    if(!changes)
+    {
+        std::cout << "Problem while opening the file!" << std::endl;
+        return;
+    }
+    changes.close();
+}
+
 void InformationSystem::availability() const
 {
     if(this->warehouse.getSize() == 0)
@@ -107,7 +132,7 @@ void InformationSystem::availability() const
                 }
                 else if(removed && size == 0 && locations == nullptr)
                 {
-                    int numberOfDivisions = ceil((double) quantity / MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                    int numberOfDivisions = ceil((double) quantity / Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
                     currNumberOfProducts -=  numberOfDivisions;
                 }
             }  
@@ -168,9 +193,9 @@ void InformationSystem::removeProduct()
 
     std::cin.get();
 
-    char name[MAX_NAME_LEN];
+    char name[Constants::MAX_NAME_LEN];
     std::cout << "name: ";
-    std::cin.getline(name, MAX_NAME_LEN);
+    std::cin.getline(name, Constants::MAX_NAME_LEN);
 
     int quantity;
     do
@@ -201,7 +226,7 @@ void InformationSystem::removeProduct()
             this->warehouse[section][shelf][number].print();
         }
 
-        char operation[MAX_OPERATION_LEN];
+        char operation[Constants::MAX_OPERATION_LEN];
         do
         {
             std::cout << "\nDo you want to remove the rest of this product? (yes/no): ";
@@ -245,7 +270,7 @@ void InformationSystem::removeProduct()
     oFile.close();
 }
 
-void InformationSystem::referenceForChanges() const
+void InformationSystem::referenceForChanges()
 {
     Date startDate, endDate;
 
@@ -264,7 +289,7 @@ void InformationSystem::referenceForChanges() const
         return;
     }
 
-    Date temp; char buffer[MAX_BUFFER_LEN];
+    Date temp; char buffer[Constants::MAX_BUFFER_LEN];
 
     bool end = false;
 
@@ -272,7 +297,7 @@ void InformationSystem::referenceForChanges() const
     {
         iFile >> temp;
         iFile.get();
-        iFile.getline(buffer, MAX_BUFFER_LEN);
+        iFile.getline(buffer, Constants::MAX_BUFFER_LEN);
 
         if((startDate < temp || startDate == temp) && (temp < endDate || temp == endDate))
         {
@@ -364,20 +389,60 @@ void InformationSystem::clear()
     oFile.close();
 }
 
+InformationSystem& InformationSystem::getInstance()
+{
+    static InformationSystem object;
+    return object;
+}
+
 void InformationSystem::useInformationSystem()
 {
-    char fileName[MAX_NAME_LEN];
+    char fileName[Constants::MAX_NAME_LEN];
     std::cout << "Enter the name of the file in which the warehouse will be stored:\n";
     std::cin >> fileName;
 
-    std::ofstream file(fileName);
+    std::ofstream file(fileName, std::ios::app);
     if(!file)
     {
         std::cout << "Problem while opening the file!" << std::endl;
         return;
     }
 
-    char operation[MAX_OPERATION_LEN];
+    if(getFileSize(fileName) > 0)
+    {
+        char operation[Constants::MAX_OPERATION_LEN];
+        do
+        {
+            std::cout << "\nThe file " << fileName 
+                      << " is not empty. Do you want to save the previous information? (yes/no): ";
+            std::cin >> operation;
+        } while(strcmp(operation, "yes") != 0 && strcmp(operation, "no") != 0);
+
+        if(strcmp(operation, "yes") == 0)
+        {
+            std::ifstream iFile(fileName);
+            if(!iFile)
+            {
+                std::cout << "Problem while opening the file!" << std::endl;
+                return;
+            }
+            iFile >> warehouse;
+            iFile.close();
+        }
+        else clearFileWithChanges();
+    }
+    else clearFileWithChanges();
+
+    file.close();
+
+    file.open(fileName, std::ios::trunc);
+    if(!file)
+    {
+        std::cout << "Problem while opening the file!" << std::endl;
+        return;
+    }
+
+    char operation[Constants::MAX_OPERATION_LEN];
     bool endOfProgram = false;
 
     bool flag = true;
@@ -401,7 +466,7 @@ void InformationSystem::useInformationSystem()
         do
 	    {
 	    	std::cout << "\nEnter an operation: ";
-	    	std::cin.getline(operation, MAX_OPERATION_LEN);
+	    	std::cin.getline(operation, Constants::MAX_OPERATION_LEN);
 	    	std::cout << "\n";
 
 	    } while(strcmp(operation, "availability") != 0 && strcmp(operation, "add") != 0 && 
@@ -416,13 +481,11 @@ void InformationSystem::useInformationSystem()
         else if(strcmp(operation, "add") == 0)
         {
             addProduct();
-            file << this->warehouse;
             flag = false;
         }
         else if(strcmp(operation, "remove") == 0)
         {
             removeProduct();
-            file << this->warehouse;
             flag = true;
         }
         else if(strcmp(operation, "changes") == 0)
@@ -433,12 +496,12 @@ void InformationSystem::useInformationSystem()
         else if(strcmp(operation, "clear") == 0)
         {
             clear();
-            file << this->warehouse;
             flag = true;
         }
         else if(strcmp(operation, "exit") == 0)
         {
             endOfProgram = true;
+            file << this->warehouse;
         }
 
     } while(!endOfProgram);
