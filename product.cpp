@@ -3,10 +3,6 @@
 #include <cassert>
 #include <cstring>
 
-const size_t MAX_NAME_LEN = 255;
-const size_t MAX_MAKER_LEN = 255;
-const size_t MAX_COMMENT_LEN = 10000;
-
 Product::Product()
     : name(nullptr), expiryDate(Date()), dateOfEntry(Date()), maker(nullptr), comment(nullptr)
 {
@@ -76,7 +72,7 @@ Product& Product::operator = (const Product& other)
 
 void Product::setName(const char* name)
 {
-    if(!name || strlen(name) > MAX_NAME_LEN) name = "";
+    if(!name || strlen(name) > Constants::MAX_NAME_LEN) name = "";
 
     delete[] this->name;
 
@@ -102,7 +98,7 @@ void Product::setDateOfEntry(const Date& dateOfEntry)
 
 void Product::setMaker(const char* maker)
 {
-    if(!maker || strlen(maker) > MAX_MAKER_LEN) maker = "";
+    if(!maker || strlen(maker) > Constants::MAX_MAKER_LEN) maker = "";
 
     delete[] this->maker;
 
@@ -118,7 +114,7 @@ void Product::setMaker(const char* maker)
 
 void Product::setComment(const char* comment)
 {
-    if(!comment || strlen(comment) > MAX_COMMENT_LEN) comment = "";
+    if(!comment || strlen(comment) > Constants::MAX_COMMENT_LEN) comment = "";
 
     delete[] this->comment;
 
@@ -202,20 +198,20 @@ std::ostream& operator << (std::ostream& out, const Product& p)
     out << p.name    << ch   << p.expiryDate << " " << p.dateOfEntry << " " 
         << p.maker   << ch   << p.quantity   << " " 
         << p.section << " "  << p.shelf      << " " << p.number      << " "
-        << p.comment << ch   << "\n";
+        << p.comment << ch   << std::endl;
 
     return out;
 }
 
 std::istream& operator >> (std::istream& in, Product& p)
 {
-    char buffer[MAX_COMMENT_LEN];
+    char buffer[Constants::MAX_COMMENT_LEN];
 
     char delim = (&in == &std::cin) ? '\n' : '|'; 
     
     if(&in == &std::cin) 
         std::cout << "name: ";
-    in.getline(buffer, MAX_NAME_LEN, delim);
+    in.getline(buffer, Constants::MAX_NAME_LEN, delim);
     p.setName(buffer);
 
     if(&in == &std::cin) 
@@ -232,7 +228,7 @@ std::istream& operator >> (std::istream& in, Product& p)
 
     if(&in == &std::cin) 
         std::cout << "maker: ";
-    in.getline(buffer, MAX_MAKER_LEN, delim);
+    in.getline(buffer, Constants::MAX_MAKER_LEN, delim);
     p.setMaker(buffer);
 
     if(&in == &std::cin) 
@@ -247,7 +243,7 @@ std::istream& operator >> (std::istream& in, Product& p)
 
     if(&in == &std::cin) 
         std::cout << "comment: ";
-    in.getline(buffer, MAX_COMMENT_LEN, delim);
+    in.getline(buffer, Constants::MAX_COMMENT_LEN, delim);
     p.setComment(buffer);
 
     if(&in != &std::cin) 

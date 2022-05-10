@@ -4,13 +4,10 @@
 #include <cstring>
 #include <cmath>
 
-const size_t INITIAL_CAPACITY = 2;
-const size_t INCREASE_STEP = 2;
-
 Warehouse::Warehouse()
 {
-    this->allocate(INITIAL_CAPACITY);
-    this->setCapacity(INITIAL_CAPACITY);
+    this->allocate(Constants::INITIAL_CAPACITY);
+    this->setCapacity(Constants::INITIAL_CAPACITY);
     this->setSize(0);
 }
 
@@ -37,7 +34,7 @@ Warehouse& Warehouse::operator = (const Warehouse& other)
 
 void Warehouse::allocate(const size_t size)
 {
-    assert(size >= INITIAL_CAPACITY);
+    assert(size >= Constants::INITIAL_CAPACITY);
 
     this->sections = new(std::nothrow) Section*[size];
     if(!this->sections)
@@ -83,13 +80,13 @@ void Warehouse::setSize(const int size)
 
 void Warehouse::setCapacity(const int capacity)
 {
-    assert(capacity >= INITIAL_CAPACITY);
+    assert(capacity >= Constants::INITIAL_CAPACITY);
     this->capacity = capacity;
 }
 
 void Warehouse::resize()
 {
-    Section** newArr = new(std::nothrow) Section*[this->capacity * INCREASE_STEP];
+    Section** newArr = new(std::nothrow) Section*[this->capacity * Constants::INCREASE_STEP];
     if(!newArr)
     {
         std::cout << "Memory not allocated successfully!\n";
@@ -106,7 +103,7 @@ void Warehouse::resize()
     this->sections = newArr;
     newArr = nullptr;
 
-    this->setCapacity(this->capacity * INCREASE_STEP);
+    this->setCapacity(this->capacity * Constants::INCREASE_STEP);
 }
 
 bool Warehouse::allocateLocations(int**& locations, const int size)
@@ -201,7 +198,8 @@ bool Warehouse::addProduct(const Product& product)
         return true;
     }
 
-    int currSectionSize, currShelfSize, numberOfNewDivisions = ceil((double) copy.getQuantity() / MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+    int currSectionSize, currShelfSize, 
+        numberOfNewDivisions = ceil((double) copy.getQuantity() / Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
 
     for(int i = 0; i < this->size; i++)
     {
@@ -209,18 +207,21 @@ bool Warehouse::addProduct(const Product& product)
         for(int j = 0; j < currSectionSize; j++)
         {
             currShelfSize = (*this->sections[i])[j].getSize(); 
-            if(currShelfSize + numberOfNewDivisions <= MAX_SHELF_CAPACITY) 
+            if(currShelfSize + numberOfNewDivisions <= Constants::MAX_SHELF_CAPACITY) 
             {
                 copy.setSection(i + 1);
+                copy.setShelf(j + 1);
                 (*this->sections[i])[j] += copy;
                 return true;
             }
         }
     }
 
-    if(currShelfSize + numberOfNewDivisions > MAX_SHELF_CAPACITY && currSectionSize + 1 <= MAX_SECTION_CAPACITY)
+    if(currShelfSize + numberOfNewDivisions > Constants::MAX_SHELF_CAPACITY && 
+                                currSectionSize + 1 <= Constants::MAX_SECTION_CAPACITY)
     {
         copy.setSection(this->size);
+        copy.setShelf(this->sections[this->size - 1]->getSize());
 
         Shelf* newShelf = new(std::nothrow) Shelf();
         if(!newShelf)
@@ -237,9 +238,11 @@ bool Warehouse::addProduct(const Product& product)
         delete newShelf;
         return true;
     }
-    else if(currShelfSize + numberOfNewDivisions > MAX_SHELF_CAPACITY && currSectionSize + 1 > MAX_SECTION_CAPACITY)
+    else if(currShelfSize + numberOfNewDivisions > Constants::MAX_SHELF_CAPACITY && 
+                                    currSectionSize + 1 > Constants::MAX_SECTION_CAPACITY)
     {
         copy.setSection(this->size);
+        copy.setShelf(this->sections[this->size - 1]->getSize());
         
         Section* newSection = new(std::nothrow) Section();
         if(!newSection)
@@ -361,7 +364,7 @@ const Section Warehouse::operator [] (int index) const
 
 std::ostream& operator << (std::ostream& out, const Warehouse& warehouse)
 {
-    out << warehouse.size << "\n";
+    out << warehouse.size << std::endl;
 
     for(int i = 0; i < warehouse.size; i++)
     {

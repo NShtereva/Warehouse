@@ -2,8 +2,7 @@
 #define __SECTION_HPP
 
 #include "shelf.hpp"
-
-const size_t MAX_SECTION_CAPACITY = 16;
+#include "constants.hpp"
 
 class Section
 {

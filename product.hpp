@@ -2,6 +2,7 @@
 #define __PRODUCT_HPP
 
 #include "date.hpp"
+#include "constants.hpp"
 
 #include <iostream>
 #include <fstream>

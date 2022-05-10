@@ -4,13 +4,10 @@
 #include <cmath>
 #include <cstring>
 
-const size_t INITIAL_CAPACITY = 2;
-const size_t INCREASE_STEP = 2;
-
 Section::Section()
 {
-    this->allocate(INITIAL_CAPACITY);
-    this->setCapacity(INITIAL_CAPACITY);
+    this->allocate(Constants::INITIAL_CAPACITY);
+    this->setCapacity(Constants::INITIAL_CAPACITY);
     this->setSize(0);
 }
 
@@ -37,7 +34,7 @@ Section& Section::operator = (const Section& other)
 
 void Section::allocate(const size_t size)
 {
-    assert(size >= INITIAL_CAPACITY && size <= MAX_SECTION_CAPACITY);
+    assert(size >= Constants::INITIAL_CAPACITY && size <= Constants::MAX_SECTION_CAPACITY);
 
     this->shelves = new(std::nothrow) Shelf*[size];
     if(!this->shelves)
@@ -83,13 +80,13 @@ void Section::setSize(const int size)
 
 void Section::setCapacity(const int capacity)
 {
-    assert(capacity >= INITIAL_CAPACITY && capacity <= MAX_SECTION_CAPACITY);
+    assert(capacity >= Constants::INITIAL_CAPACITY && capacity <= Constants::MAX_SECTION_CAPACITY);
     this->capacity = capacity;
 }
 
 void Section::resize()
 {
-    Shelf** newArr = new(std::nothrow) Shelf*[this->capacity * INCREASE_STEP];
+    Shelf** newArr = new(std::nothrow) Shelf*[this->capacity * Constants::INCREASE_STEP];
     if(!newArr)
     {
         std::cout << "Memory not allocated successfully!\n";
@@ -106,7 +103,7 @@ void Section::resize()
     this->shelves = newArr;
     newArr = nullptr;
 
-    this->setCapacity(this->capacity * INCREASE_STEP);
+    this->setCapacity(this->capacity * Constants::INCREASE_STEP);
 }
 
 bool Section::hasTheSameProduct(const Product& product, const int shelfNumber)
@@ -163,9 +160,9 @@ void Section::addProduct(const Product& product)
 
     for(int i = 0; i < this->size && !added; i++)
     {
-        int numberOfNewDivisions = ceil((double) copy.getQuantity() / MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+        int numberOfNewDivisions = ceil((double) copy.getQuantity() / Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
 
-        if(this->shelves[i]->getSize() + numberOfNewDivisions <= MAX_SHELF_CAPACITY && hasTheSameProduct(copy, i))
+        if(this->shelves[i]->getSize() + numberOfNewDivisions <= Constants::MAX_SHELF_CAPACITY && hasTheSameProduct(copy, i))
         {
             copy.setShelf(i + 1);
             *this->shelves[i] += copy;
@@ -185,7 +182,7 @@ void Section::addProduct(const Product& product)
     {
         for(int i = 0; i < this->size; i++)
         {
-            if(this->shelves[i]->getSize() <= MAX_SHELF_CAPACITY)
+            if(this->shelves[i]->getSize() <= Constants::MAX_SHELF_CAPACITY)
             {
                 copy.setShelf(i + 1);
                 *this->shelves[i] += copy;
@@ -351,7 +348,7 @@ const Shelf Section::operator [] (int index) const
 
 std::ostream& operator << (std::ostream& out, const Section& section)
 {
-    out << section.size << "\n";
+    out << section.size << std::endl;
 
     for(int i = 0; i < section.size; i++)
     {

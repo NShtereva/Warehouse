@@ -2,6 +2,7 @@
 #define __WAREHOUSE_HPP
 
 #include "section.hpp"
+#include "constants.hpp"
 
 class Warehouse
 {

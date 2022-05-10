@@ -4,13 +4,10 @@
 #include <cstring>
 #include <cmath>
 
-const size_t INITIAL_CAPACITY = 2;
-const size_t INCREASE_STEP = 2;
-
 Shelf::Shelf()
 {
-    this->allocate(INITIAL_CAPACITY);
-    this->setCapacity(INITIAL_CAPACITY);
+    this->allocate(Constants::INITIAL_CAPACITY);
+    this->setCapacity(Constants::INITIAL_CAPACITY);
     this->setSize(0);
 }
 
@@ -37,7 +34,7 @@ Shelf& Shelf::operator = (const Shelf& other)
 
 void Shelf::allocate(const size_t size)
 {
-    assert(size >= INITIAL_CAPACITY && size <= MAX_SHELF_CAPACITY);
+    assert(size >= Constants::INITIAL_CAPACITY && size <= Constants::MAX_SHELF_CAPACITY);
 
     this->products = new(std::nothrow) Product*[size];
     if(!this->products)
@@ -83,13 +80,13 @@ void Shelf::setSize(const int size)
 
 void Shelf::setCapacity(const int capacity)
 {
-    assert(capacity >= INITIAL_CAPACITY && capacity <= MAX_SHELF_CAPACITY);
+    assert(capacity >= Constants::INITIAL_CAPACITY && capacity <= Constants::MAX_SHELF_CAPACITY);
     this->capacity = capacity;
 }
 
 void Shelf::resize()
 {
-    Product** newArr = new(std::nothrow) Product*[this->capacity * INCREASE_STEP];
+    Product** newArr = new(std::nothrow) Product*[this->capacity * Constants::INCREASE_STEP];
     if(!newArr)
     {
         std::cout << "Memory not allocated successfully!\n";
@@ -106,7 +103,7 @@ void Shelf::resize()
     this->products = newArr;
     newArr = nullptr;
 
-    this->setCapacity(this->capacity * INCREASE_STEP);
+    this->setCapacity(this->capacity * Constants::INCREASE_STEP);
 }
 
 bool Shelf::addProduct(const Product& product, const int index)
@@ -162,7 +159,7 @@ size_t Shelf::getSize() const
 
 Shelf& Shelf::operator += (const Product& product)
 {
-    int numberOfNewDivisions = ceil((double) product.getQuantity() / MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+    int numberOfNewDivisions = ceil((double) product.getQuantity() / Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
 
     while(this->size + numberOfNewDivisions > this->capacity)
     {
@@ -186,10 +183,10 @@ Shelf& Shelf::operator += (const Product& product)
                     i++;
                 }
 
-                if(this->products[i]->getQuantity() < MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                if(this->products[i]->getQuantity() < Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
                 {
-                    int diff = MAX_QUANTITY_IN_ONE_SHELF_DIVISION - this->products[i]->getQuantity();
-                    this->products[i]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                    int diff = Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION - this->products[i]->getQuantity();
+                    this->products[i]->setQuantity(Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
                     newQuantity = product.getQuantity() - diff;
                 }
                 else // this->products[i]->getQuantity() == MAX_QUANTITY_IN_ONE_SHELF_DIVISION
@@ -198,15 +195,15 @@ Shelf& Shelf::operator += (const Product& product)
                 }
 
                 index = i + 1;
-                while(newQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                while(newQuantity > Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
                 {
                     this->relocationInDescOrderOfIndices(this->size, index);
 
                     bool added = this->addProduct(product, index);
                     if(!added) return *this;
 
-                    this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-                    newQuantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
+                    this->products[index]->setQuantity(Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                    newQuantity -= Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
                     i++;
                     index++;
                 }
@@ -222,7 +219,7 @@ Shelf& Shelf::operator += (const Product& product)
                     i++;
                 }
 
-                if(product.getQuantity() <= MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                if(product.getQuantity() <= Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
                 {
                     index = i + 1;
                     this->relocationInDescOrderOfIndices(this->size, index);
@@ -231,7 +228,7 @@ Shelf& Shelf::operator += (const Product& product)
                 {
                     int currQuantity = product.getQuantity();
 
-                    while(currQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                    while(currQuantity > Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
                     {
                         index = i + 1;
                         this->relocationInAscOrderOfIndices(index + 1, this->size);
@@ -239,8 +236,8 @@ Shelf& Shelf::operator += (const Product& product)
                         bool added = this->addProduct(product, index);
                         if(!added) return *this;
 
-                        this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-                        currQuantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
+                        this->products[index]->setQuantity(Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                        currQuantity -= Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
                         i++;
                     }
 
@@ -252,7 +249,7 @@ Shelf& Shelf::operator += (const Product& product)
             }
             else // product.getExpiryDate() < this->products[i]->getExpiryDate()
             {
-                if(product.getQuantity() <= MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                if(product.getQuantity() <= Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
                 {
                     index = i;
                     this->relocationInDescOrderOfIndices(this->size, index);
@@ -261,7 +258,7 @@ Shelf& Shelf::operator += (const Product& product)
                 {
                     int currQuantity = product.getQuantity();
 
-                    while(currQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+                    while(currQuantity > Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
                     {
                         index = i;
                         this->relocationInDescOrderOfIndices(this->size, index);
@@ -269,8 +266,8 @@ Shelf& Shelf::operator += (const Product& product)
                         bool added = this->addProduct(product, index);
                         if(!added) return *this;
 
-                        this->products[index]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-                        currQuantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
+                        this->products[index]->setQuantity(Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                        currQuantity -= Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
                         i++;
                     }
 
@@ -285,17 +282,17 @@ Shelf& Shelf::operator += (const Product& product)
 
     if(this->size == 0 || isUnaddedProduct)
     {
-        if(product.getQuantity() > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+        if(product.getQuantity() > Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
         {
             int currQuantity = product.getQuantity();
 
-            while(currQuantity > MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
+            while(currQuantity > Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION)
             {
                 bool added = this->addProduct(product, this->size);
                 if(!added) return *this;
 
-                this->products[this->size - 1]->setQuantity(MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-                currQuantity -= MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
+                this->products[this->size - 1]->setQuantity(Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
+                currQuantity -= Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION;
             }
             
             newQuantity = currQuantity;
@@ -488,7 +485,7 @@ const Product Shelf::operator [] (int index) const
 
 std::ostream& operator << (std::ostream& out, const Shelf& shelf)
 {
-    out << shelf.size << "\n";
+    out << shelf.size << std::endl;
 
     for(int i = 0; i < shelf.size; i++)
     {

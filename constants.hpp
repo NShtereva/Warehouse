@@ -6,7 +6,7 @@
 class Constants
 {
     public:
-        Constants()= delete;
+        Constants() = delete;
         
         static const size_t MAX_NAME_LEN = 255;
         static const size_t MAX_MAKER_LEN = 255;
