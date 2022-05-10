@@ -2,12 +2,12 @@
 
 #include <cassert>
 
-Date::Date(unsigned int day, unsigned int month, unsigned int year)
+Date::Date(const unsigned int day, const unsigned int month, const unsigned int year)
 {
     this->setDate(day, month, year);
 }
 
-bool Date::isLeapYear(unsigned int year) const
+bool Date::isLeapYear(unsigned int year)
 {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
@@ -27,9 +27,9 @@ unsigned int Date::getYear() const
     return this->year;
 }
 
-void Date::setDate(const int day, const int month, const int year)
+void Date::setDate(const unsigned int day, const unsigned int month, const unsigned int year)
 {
-    assert(month >= 1 && month <= 12 && year >= 0);
+    assert(month >= 1 && month <= 12);
 
     if(this->isLeapYear(year) && month == 2)
     {
@@ -41,7 +41,7 @@ void Date::setDate(const int day, const int month, const int year)
     }
 
     if(month == 1 || month == 3 || month == 5 || month == 7 || 
-            month == 8 || month == 10 || month == 12)
+                        month == 8 || month == 10 || month == 12)
     {
         assert(day >= 1 && day <= 31);
     }
@@ -76,7 +76,7 @@ Date& Date::operator += (const int days)
     this->day += days;
 
     if(this->day > 31 && (month == 1 || month == 3 || month == 5 || month == 7 || 
-                                                month == 8 || month == 10 || month == 12))
+                                            month == 8 || month == 10 || month == 12))
     {
         this->day -= 31;
         if(this->month == 12)
@@ -113,11 +113,13 @@ std::ostream& operator << (std::ostream& out, const Date& date)
 
 std::istream& operator >> (std::istream& in, Date& date)
 {
-    in >> date.day;
-    in.get();
-    in >> date.month;
-    in.get();
-    in >> date.year;
+    unsigned int day, month, year;
+
+    in >> day; in.get();
+    in >> month; in.get();
+    in >> year;
+
+    date.setDate(day, month, year);
 
     return in;
 }

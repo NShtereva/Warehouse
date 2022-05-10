@@ -11,16 +11,16 @@ class Date
         unsigned int month;
         unsigned int year;
 
-        bool isLeapYear(unsigned int year) const;
+        static bool isLeapYear(unsigned int year);
 
     public:
-        Date(unsigned int day = 1, unsigned int month = 1, unsigned int year = 1900);
+        Date(const unsigned int day = 1, const unsigned int month = 1, const unsigned int year = 1900);
 
         unsigned int getDay() const;
         unsigned int getMonth() const;
         unsigned int getYear() const;
 
-        void setDate(const int day, const int month, const int year);
+        void setDate(const unsigned int day, const unsigned int month, const unsigned int year);
 
         bool operator == (const Date& other) const;
         bool operator < (const Date& other) const;
