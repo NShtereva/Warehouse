@@ -98,13 +98,6 @@ void InformationSystem::availability() const
         return;
     }
 
-    std::ofstream oFile("temp.txt");
-    if(!oFile)
-    {
-        std::cout << "Problem while opening the file!" << std::endl;
-        return;
-    }
-
     Warehouse copy(this->warehouse);
     Product temp;
 
@@ -114,8 +107,17 @@ void InformationSystem::availability() const
         int currNumberOfShelves = this->warehouse[i].getSize();
         for(int j = 0; j < currNumberOfShelves; j++)
         {
+            std::ofstream oFile("temp.txt");
+            if(!oFile)
+            {
+                std::cout << "Problem while opening the file!" << std::endl;
+                return;
+            }
+
             int currNumberOfProducts = this->warehouse[i][j].getSize();
-            while(currNumberOfProducts > 0)
+            bool isEmpty = (currNumberOfProducts == 0);
+            
+            while(!isEmpty)
             {
                 temp = copy[i][j][0];
 
@@ -132,14 +134,29 @@ void InformationSystem::availability() const
                 }
                 else if(removed && size == 0 && locations == nullptr)
                 {
-                    int numberOfDivisions = ceil((double) quantity / Constants::MAX_QUANTITY_IN_ONE_SHELF_DIVISION);
-                    currNumberOfProducts -=  numberOfDivisions;
+                    std::ifstream iFile("temp.txt");
+                    if(!iFile)
+                    {
+                        std::cout << "Problem while opening the file!" << std::endl;
+                        return;
+                    }
+
+                    int numberOfDivisions = 0;
+                    char c;
+
+                    while(iFile.get(c))
+                    {
+                        if(c == '\n') numberOfDivisions++;
+                    }
+
+                    isEmpty = (currNumberOfProducts == numberOfDivisions);
+                    iFile.close();
                 }
-            }  
+            } 
+            
+            oFile.close(); 
         }
     }
-
-    oFile.close();
 }
 
 void InformationSystem::addProduct()
@@ -237,30 +254,43 @@ void InformationSystem::removeProduct()
         {
             Product currProduct;
 
-            for(int i = 0; i < size; i++)
+            int i = 0;
+            while(i < size)
             {
                 int section = locations[i][0], 
                     shelf = locations[i][1], 
                     number = locations[i][2];
 
-                currProduct = this->warehouse[section][shelf][number];
+                int counter = 0;
 
-                int currSize = 0, **currLocations = nullptr;
-
-                removed = this->warehouse.removeProduct(currProduct.getName(), 
-                                                        currProduct.getQuantity(), 
-                                                        currLocations, currSize);
-
-                if(!removed && currSize != 0 && currLocations != nullptr)
+                while(i + 1 < size && locations[i][0] == locations[i + 1][0] && locations[i][1] == locations[i + 1][1])
                 {
-                    std::cout << "Error! The product has not been removed from warehouse!" << std::endl;
-                    deallocateLocations(currLocations, currSize);
+                    i++; counter++;
                 }
-                else if(removed && currSize == 0 && currLocations == nullptr)
+
+                for(int j = 0; j <= counter; j++)
                 {
-                    oFile << date << " " << "Removed product -> name: " << currProduct.getName() 
-                          << ", quantity: " << currProduct.getQuantity() << std::endl;
+                    currProduct = this->warehouse[section][shelf][number];
+
+                    int currSize = 0, **currLocations = nullptr;
+
+                    removed = this->warehouse.removeProduct(currProduct.getName(), 
+                                                            currProduct.getQuantity(), 
+                                                            currLocations, currSize);
+
+                    if(!removed && currSize != 0 && currLocations != nullptr)
+                    {
+                        std::cout << "Error! The product has not been removed from warehouse!" << std::endl;
+                        deallocateLocations(currLocations, currSize);
+                    }
+                    else if(removed && currSize == 0 && currLocations == nullptr)
+                    {
+                        oFile << date << " " << "Removed product -> name: " << currProduct.getName() 
+                              << ", quantity: " << currProduct.getQuantity() << std::endl;
+                    }
                 }
+                
+                i++;
             }
         }
 
@@ -280,6 +310,12 @@ void InformationSystem::referenceForChanges()
     std::cout << "end date: ";
     std::cin >> endDate;
 
+    if(endDate < startDate)
+    {
+        std::cout << "\nIncorrect period!" << std::endl;
+        return;
+    }
+
     std::cout << "\nChanges in availability from " << startDate << " to " << endDate << ":" << std::endl;
 
     std::ifstream iFile("changes.txt");
@@ -295,6 +331,14 @@ void InformationSystem::referenceForChanges()
 
     while(!end)
     {
+        char symbol = iFile.get();
+        if(symbol >= '1' && symbol <= '9') iFile.putback(symbol);
+        else 
+        {
+            end = true;
+            continue;
+        }
+
         iFile >> temp;
         iFile.get();
         iFile.getline(buffer, Constants::MAX_BUFFER_LEN);
@@ -302,10 +346,6 @@ void InformationSystem::referenceForChanges()
         if((startDate < temp || startDate == temp) && (temp < endDate || temp == endDate))
         {
             std::cout << temp << ": " << buffer << std::endl;
-
-            char symbol = iFile.get();
-            if(symbol >= '1' && symbol <= '9') iFile.putback(symbol);
-            else end = true;
         }
     }
 
